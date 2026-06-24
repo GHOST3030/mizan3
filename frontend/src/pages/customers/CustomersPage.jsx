@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import client from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import {
@@ -134,7 +134,7 @@ export default function CustomersPage() {
   );
 }
 
-function CustomerFormModal({ customer, userBranchId, isAdmin, onClose, onSuccess }) {
+function CustomerFormModal({ customer, userBranchId, onClose, onSuccess }) {
   const [form, setForm] = useState({
     name: customer?.name || '', phone: customer?.phone || '',
     email: customer?.email || '', address: customer?.address || '',

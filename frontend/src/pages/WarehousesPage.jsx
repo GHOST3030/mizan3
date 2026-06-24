@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Building2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import client from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import {
   Button, PageHeader, PageTransition, FormModal, Alert,
-  ConfirmButton, Badge, Card, Skeleton, toast, Breadcrumbs,
+  ConfirmButton, Badge, Card, CardSkeleton, toast, Breadcrumbs,
 } from '../components/ui';
 import { Can } from '../components/Can';
 import { PERMISSIONS } from '../utils/permissions';

@@ -19,6 +19,7 @@ const icons = {
 let toastId = 0;
 let addToastFn = null;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function toast(message, type = 'success') {
   if (addToastFn) addToastFn({ id: ++toastId, message, type });
 }

@@ -3,7 +3,7 @@ export const formatCurrency = (value) => {
   return Number(value).toLocaleString();
 };
 
-export const formatCurrencyFixed = (value, decimals = 2) => {
+export const formatCurrencyFixed = (value) => {
   if (value === null || value === undefined) return '0';
   return Number(value).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 };

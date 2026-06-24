@@ -5,7 +5,7 @@ export default function SearchInput({ value, onChange, placeholder = 'بحث...'
   const [local, setLocal] = useState(value || '');
 
   useEffect(() => {
-    setLocal(value || '');
+    setLocal(value || ''); // eslint-disable-line react-hooks/set-state-in-effect
   }, [value]);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function SearchInput({ value, onChange, placeholder = 'بحث...'
       }
     }, debounceMs);
     return () => clearTimeout(timer);
-  }, [local, debounceMs]);
+  }, [local, debounceMs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="relative">

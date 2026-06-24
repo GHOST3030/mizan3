@@ -72,6 +72,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: async () => (await client.get('/categories')).data });
   const { data: brands } = useQuery({ queryKey: ['brands'], queryFn: async () => (await client.get('/brands')).data });
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (product) {
       setForm({
@@ -95,6 +96,7 @@ export default function ProductForm({ product, onClose, onSuccess }) {
       }
     }
   }, [product]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
