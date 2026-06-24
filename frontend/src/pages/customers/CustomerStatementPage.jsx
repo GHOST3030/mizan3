@@ -26,6 +26,7 @@ export default function CustomerStatementPage() {
   const [dateTo, setDateTo] = useState('');
   const queryClient = useQueryClient();
 
+  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
   useEffect(() => {
     const id = searchParams.get('customer_id');
     const name = searchParams.get('customer_name');
@@ -34,6 +35,7 @@ export default function CustomerStatementPage() {
       setCustomerSearch(name || '');
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 
   const { data: defaultCurrency } = useQuery({
     queryKey: ['default-currency'],
@@ -76,8 +78,6 @@ export default function CustomerStatementPage() {
 
   const summary = statementData?.summary;
   const transactions = statementData?.transactions || [];
-  const schedules = statementData?.schedules || [];
-
   const creditPurchases = transactions.filter((t) => t.type === 'sale' && t.remaining > 0);
   const paymentEntries = transactions.filter((t) => t.type === 'payment');
 

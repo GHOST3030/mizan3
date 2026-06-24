@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import client from '../../api/client';
-import { Button, Input, Card, Badge, Alert, EmptyState, toast } from '../../components/ui';
+import { Button, Input, Card, Alert, EmptyState, toast } from '../../components/ui';
 import { Can } from '../../components/Can';
 import { PERMISSIONS } from '../../utils/permissions';
 

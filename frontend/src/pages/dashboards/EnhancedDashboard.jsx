@@ -38,8 +38,6 @@ export default function EnhancedDashboard() {
   const user = useAuthStore((s) => s.user);
   const role = user?.role;
   const access = getAccess(role);
-  const isManager = role === 'manager';
-
   const { data: financeData, isLoading: financeLoading } = useQuery({
     queryKey: ['dash-finance'],
     queryFn: async () => { const res = await client.get('/executive-dashboard/finance'); return res.data; },
@@ -204,7 +202,7 @@ function KpiCard({ title, value, subtitle, color, onClick, icon }) {
   );
 }
 
-function ChartsSection({ access, dailyTrend, monthlyTrend, topProducts, topCustomers, navigate }) {
+function ChartsSection({ access, dailyTrend, monthlyTrend, topProducts, topCustomers }) {
   const showAll = access.charts === 'all';
   const chartCards = [];
 
@@ -306,7 +304,7 @@ function ChartsSection({ access, dailyTrend, monthlyTrend, topProducts, topCusto
   );
 }
 
-function AlertWidgets({ alerts, access, inventoryData, navigate }) {
+function AlertWidgets({ alerts, access, navigate }) {
   const filteredAlerts = useMemo(() => {
     if (access.alerts === 'all') return alerts;
     if (access.alerts === 'financial') return alerts.filter((a) =>

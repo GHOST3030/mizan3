@@ -19,8 +19,6 @@ export default function LowStockPage() {
   });
 
   const lowStockProducts = lowData?.data || [];
-  const meta = lowData?.meta || { total: 0, low_stock: 0, out_of_stock: 0 };
-
   const critical = lowStockProducts.filter((b) => b.current_stock === 0);
   const warning = lowStockProducts.filter((b) => b.current_stock > 0 && b.current_stock <= (b.min_stock || 0) / 2);
   const notice = lowStockProducts.filter((b) => !critical.includes(b) && !warning.includes(b));

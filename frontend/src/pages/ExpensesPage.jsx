@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Wallet, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import client from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import {

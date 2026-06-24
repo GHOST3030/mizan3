@@ -5,7 +5,7 @@ import { Undo2, RotateCcw, Printer } from 'lucide-react';
 import client from '../../api/client';
 import {
   Button, PageHeader, Table, Badge, PageTransition, SearchInput,
-  Select, Modal, ConfirmButton, Pagination, toast, Breadcrumbs,
+  Select, Modal, ConfirmButton, toast, Breadcrumbs,
 } from '../../components/ui';
 import { printReceipt, printA4 } from '../../utils/print';
 import { Can } from '../../components/Can';

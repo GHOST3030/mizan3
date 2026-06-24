@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Trash2, Package } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import client from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { Button, FormModal, Alert } from '../../components/ui';
@@ -30,6 +30,7 @@ export default function PurchaseForm({ purchase, userId, onClose, onSuccess }) {
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (purchase) {
       setSupplierId(purchase.supplier_id || '');
@@ -53,6 +54,7 @@ export default function PurchaseForm({ purchase, userId, onClose, onSuccess }) {
       }
     }
   }, [purchase]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { data: productsData } = useQuery({
     queryKey: ['purchase-products', productSearch],

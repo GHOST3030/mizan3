@@ -174,7 +174,6 @@ function MiniBarChart({ data, dataKey, labelKey, height = 160, color = '#22c55e'
   );
   const values = data.map(d => d[dataKey]);
   const maxVal = Math.max(...values, 1);
-  const barW = Math.max(12, Math.min(36, (400 - data.length) / data.length));
   return (
     <div className="flex items-end justify-between gap-1" style={{ height }}>
       {data.map((d, i) => {
@@ -315,36 +314,36 @@ function FinanceCards({ data, navigate, showSafeBalance }) {
   );
 }
 
+const SectionCard = ({ title, icon, badge, children }) => (
+  <Card className="h-full">
+    <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        {icon && <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">{icon}</div>}
+        <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm">{title}</h3>
+      </div>
+      {badge && <Badge color="gray" className="text-xs">{badge}</Badge>}
+    </div>
+    {children}
+  </Card>
+);
+
+const AnalyticsEmptyState = () => (
+  <div className="p-6 text-center">
+    <svg className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>
+    <p className="text-sm text-gray-400 dark:text-gray-500">لا توجد بيانات</p>
+  </div>
+);
+
 function TopAnalytics({ data, navigate }) {
   const topRevenue = data?.top_products?.by_revenue || [];
   const topCustomers = data?.top_customers || [];
   const topSuppliers = data?.top_suppliers || [];
   if (topRevenue.length === 0 && topCustomers.length === 0 && topSuppliers.length === 0) return null;
 
-  const SectionCard = ({ title, icon, badge, children }) => (
-    <Card className="h-full">
-      <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {icon && <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">{icon}</div>}
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm">{title}</h3>
-        </div>
-        {badge && <Badge color="gray" className="text-xs">{badge}</Badge>}
-      </div>
-      {children}
-    </Card>
-  );
-
-  const EmptyState = () => (
-    <div className="p-6 text-center">
-      <svg className="w-8 h-8 mx-auto text-gray-300 dark:text-gray-600 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>
-      <p className="text-sm text-gray-400 dark:text-gray-500">لا توجد بيانات</p>
-    </div>
-  );
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <SectionCard title="أفضل 10 منتجات" icon={<svg className="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>} badge="إيرادات">
-        {topRevenue.length === 0 ? <EmptyState /> : (
+        {topRevenue.length === 0 ? <AnalyticsEmptyState /> : (
           <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
             {topRevenue.slice(0, 10).map((p, i) => (
               <div key={i} className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition">
@@ -360,7 +359,7 @@ function TopAnalytics({ data, navigate }) {
       </SectionCard>
 
       <SectionCard title="أفضل 10 عملاء" icon={<svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>}>
-        {topCustomers.length === 0 ? <EmptyState /> : (
+        {topCustomers.length === 0 ? <AnalyticsEmptyState /> : (
           <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
             {topCustomers.slice(0, 10).map((c, i) => (
               <div key={i} className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/30 transition" onClick={() => navigate('/customers')}>
@@ -376,7 +375,7 @@ function TopAnalytics({ data, navigate }) {
       </SectionCard>
 
       <SectionCard title="أفضل الموردين" icon={<svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg>}>
-        {topSuppliers.length === 0 ? <EmptyState /> : (
+        {topSuppliers.length === 0 ? <AnalyticsEmptyState /> : (
           <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
             {topSuppliers.slice(0, 10).map((s, i) => (
               <div key={i} className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/30 transition" onClick={() => navigate('/suppliers')}>
@@ -483,7 +482,7 @@ export default function ExecutiveDashboard() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const role = user?.role;
-  const { canViewDailyProfit, canViewMonthlyProfit, canViewInventoryValue, canViewSafeBalance, canViewFinancialSummary } = useFieldPermission();
+  const { canViewDailyProfit, canViewInventoryValue, canViewSafeBalance, canViewFinancialSummary } = useFieldPermission();
   const perm = useRolePermissions(role);
 
   const { data, isLoading, dataUpdatedAt } = useQuery({
