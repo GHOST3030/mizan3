@@ -1,0 +1,359 @@
+Context:
+
+Read these files before starting:
+
+- MASTER_SYSTEM_AUDIT.md
+- SYSTEM_STABILIZATION_REPORT.md
+- SESSION_HANDOFF.md
+
+The previous audit focused mainly on static analysis.
+
+This task must perform real runtime testing of the running application.
+
+# PHASE QA-2 — Full Functional Testing & End-to-End Validation
+
+IMPORTANT:
+
+Do NOT add new features.
+
+Do NOT perform refactoring unless required to fix a verified bug.
+
+The goal is to functionally test the running system exactly like a real user.
+
+All reports, findings, progress updates, and summaries must be written in Arabic.
+
+---
+
+## MISSION
+
+Run the application and perform a complete functional audit.
+
+This phase is NOT a code review.
+
+This phase is NOT a static analysis.
+
+This phase MUST verify actual runtime behavior.
+
+Test the system exactly as a user would.
+
+---
+
+## ENVIRONMENT
+
+1. Start Backend
+2. Start Frontend
+3. Verify database connection
+4. Verify authentication works
+5. Verify seed data exists
+
+---
+
+PHASE 1
+ROUTE WALKTHROUGH
+-----------------
+
+Visit every registered frontend route.
+
+For each route verify:
+
+* Page loads
+* No blank screen
+* No React crash
+* No console errors
+* No unhandled promise rejections
+* No infinite loading
+
+Record:
+
+Route
+Status
+Errors
+Screenshots (if supported)
+
+Generate:
+
+ROUTE_RUNTIME_REPORT.md
+
+---
+
+PHASE 2
+PAGE TESTING
+------------
+
+Open every page.
+
+Verify:
+
+* Data loads
+* Empty state works
+* Error state works
+* Loading state works
+
+Pages include:
+
+Dashboard
+Users
+Roles
+Products
+Categories
+Brands
+Units
+Customers
+Suppliers
+Purchases
+Sales
+POS
+Inventory
+Stock Count
+Stock Transfer
+Wastage
+Expenses
+Shifts
+Reports
+Settings
+Currencies
+Currency Exchange
+Cash Registers
+Safe Box
+Companies
+Warehouses
+Print Templates
+
+Generate:
+
+PAGE_FUNCTIONAL_REPORT.md
+
+---
+
+PHASE 3
+BUTTON TESTING
+--------------
+
+For every page:
+
+Click every button.
+
+Verify:
+
+* Button is visible when permitted
+* Button is hidden when not permitted
+* Button executes action
+* Success notification appears
+* Error notification appears when expected
+
+Test:
+
+Create
+Edit
+Delete
+Approve
+Reject
+Save
+Print
+Export
+Search
+Filter
+Refresh
+
+Generate:
+
+BUTTON_TEST_REPORT.md
+
+---
+
+PHASE 4
+FORM TESTING
+------------
+
+Test every form.
+
+Verify:
+
+* Required fields
+* Validation messages
+* Invalid values rejected
+* Valid submission succeeds
+* API response handled correctly
+
+Generate:
+
+FORM_TEST_REPORT.md
+
+---
+
+PHASE 5
+RBAC TESTING
+------------
+
+Create or use test accounts:
+
+Super Admin
+Admin
+Manager
+Accountant
+Cashier
+
+Verify:
+
+* Menus visibility
+* Page access
+* Button visibility
+* Data visibility
+* API restrictions
+
+Generate:
+
+RBAC_RUNTIME_REPORT.md
+
+---
+
+PHASE 6
+FIELD LEVEL SECURITY
+--------------------
+
+Verify sensitive data visibility.
+
+Examples:
+
+Product Cost
+Profit Margin
+Profit Amount
+Inventory Value
+Financial Summary
+Safe Balance
+
+Test each role.
+
+Verify unauthorized users cannot see sensitive values.
+
+Generate:
+
+FIELD_SECURITY_REPORT.md
+
+---
+
+PHASE 7
+WORKFLOW TESTING
+----------------
+
+Execute complete business workflows.
+
+Workflow A:
+
+Create Customer
+Create Sale
+Receive Payment
+Verify Inventory Reduced
+
+Workflow B:
+
+Create Supplier
+Create Purchase
+Receive Inventory
+
+Workflow C:
+
+Open Shift
+Create Transactions
+Close Shift
+
+Workflow D:
+
+Create Expense
+Approve Expense
+
+Workflow E:
+
+Stock Transfer
+Stock Count
+Wastage
+
+Verify all database updates are correct.
+
+Generate:
+
+WORKFLOW_TEST_REPORT.md
+
+---
+
+PHASE 8
+API INTEGRATION TESTING
+-----------------------
+
+Verify every frontend action reaches backend correctly.
+
+Check:
+
+Frontend
+→ API
+→ Service
+→ Database
+
+Identify:
+
+404
+401
+403
+500
+
+Generate:
+
+API_INTEGRATION_REPORT.md
+
+---
+
+PHASE 9
+DASHBOARD TESTING
+-----------------
+
+Verify:
+
+KPI Cards
+Charts
+Alerts
+Top Products
+Top Customers
+Top Suppliers
+Inventory Widgets
+Financial Widgets
+
+Verify calculations against database values.
+
+Generate:
+
+DASHBOARD_VALIDATION_REPORT.md
+
+---
+
+PHASE 10
+FINAL CERTIFICATION
+-------------------
+
+Generate:
+
+SYSTEM_READINESS_REPORT.md
+
+Include:
+
+Total routes tested
+Total pages tested
+Total buttons tested
+Total forms tested
+Total workflows tested
+
+Critical issues
+High issues
+Medium issues
+Low issues
+
+Production readiness score (0-100)
+
+Final recommendation:
+
+READY
+or
+NOT READY
+
+Provide evidence for every issue found.
+
+Do not mark READY unless all critical user-facing issues are verified fixed.

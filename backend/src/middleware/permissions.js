@@ -1,0 +1,45 @@
+// Permission key constants — for reference in route definitions
+// Actual role-permission mappings live in the database (RolePermission table)
+// and are fetched at runtime by permission.service.js
+
+export const PERMISSIONS = {
+  EXPENSE_VIEW: 'expense:view',
+  EXPENSE_CREATE: 'expense:create',
+  EXPENSE_EDIT: 'expense:edit',
+  EXPENSE_APPROVE: 'expense:approve',
+  EXPENSE_DELETE: 'expense:delete',
+  EXPENSE_CATEGORY_MANAGE: 'expense:category:manage',
+  REPORT_FINANCIAL: 'report:financial',
+  REPORT_EXPORT: 'report:export',
+  SHIFT_OPEN: 'shift:open',
+  SHIFT_CLOSE: 'shift:close',
+  SHIFT_APPROVE: 'shift:approve',
+  CASH_REGISTER_MANAGE: 'cash_register:manage',
+  CURRENCY_EXCHANGE: 'currency:exchange',
+  TEMPLATE_MANAGE: 'template:manage',
+  SALE_CANCEL_REVIEW: 'sale:cancel:review',
+  INVENTORY_TRANSFER: 'inventory:transfer',
+  INVENTORY_COUNT: 'inventory:count',
+  INVENTORY_WASTAGE: 'inventory:wastage',
+  INVENTORY_MOVEMENT_VIEW: 'inventory:movement:view',
+  INVENTORY_VALUATION_VIEW: 'inventory:valuation:view',
+  INVENTORY_LOW_STOCK_VIEW: 'inventory:low_stock:view',
+  // Dashboard
+  VIEW_EXECUTIVE_DASHBOARD: 'dashboard:view_executive_dashboard',
+  VIEW_COMPANY_PROFIT: 'dashboard:view_company_profit',
+  VIEW_BRANCH_PROFIT: 'dashboard:view_branch_profit',
+  VIEW_INVENTORY_VALUE: 'dashboard:view_inventory_value',
+  VIEW_FINANCIAL_SUMMARY: 'dashboard:view_financial_summary',
+  // Field-Level Security
+  VIEW_PRODUCT_COST: 'field:view_product_cost',
+  VIEW_PROFIT_MARGIN: 'field:view_profit_margin',
+  VIEW_PROFIT_AMOUNT: 'field:view_profit_amount',
+  VIEW_INVENTORY_VALUE_FIELD: 'field:view_inventory_value',
+  VIEW_DAILY_PROFIT: 'field:view_daily_profit',
+  VIEW_MONTHLY_PROFIT: 'field:view_monthly_profit',
+  VIEW_SAFE_BALANCE: 'field:view_safe_balance',
+  VIEW_FINANCIAL_SUMMARY_FIELD: 'field:view_financial_summary',
+  VIEW_CUSTOMER_BALANCE: 'field:view_customer_balance',
+  VIEW_SUPPLIER_BALANCE: 'field:view_supplier_balance',
+  VIEW_PURCHASE_COSTS: 'field:view_purchase_costs',
+};

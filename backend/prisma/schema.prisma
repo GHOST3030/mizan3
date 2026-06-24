@@ -1,0 +1,956 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Core ───────────────────────────────────────────
+
+model Company {
+  id         String    @id @default(uuid())
+  name       String
+  name_ar    String
+  logo_url   String?
+  tax_number String?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  branches Branch[]
+
+  @@map("companies")
+}
+
+model Branch {
+  id         String    @id @default(uuid())
+  company_id String
+  name       String
+  name_ar    String
+  address    String?
+  phone      String?
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  company            Company            @relation(fields: [company_id], references: [id])
+  users              User[]
+  shifts             Shift[]
+  products           Product[]
+  sales              Sale[]
+  purchases          Purchase[]
+  stock_movements    StockMovement[]
+  stock_counts       StockCount[]
+  warehouses         Warehouse[]
+  inventory_balances InventoryBalance[]
+  customers          Customer[]
+  suppliers          Supplier[]
+  expenses           Expense[]
+  cash_registers     CashRegister[]
+  safe_boxes         SafeBox[]
+  settings           Setting[]
+  activity_logs      ActivityLog[]
+  number_sequences   NumberSequence[]
+  expense_categories  ExpenseCategory[]
+  from_stock_transfers StockTransfer[] @relation("from_branch_stock_transfers")
+  to_stock_transfers   StockTransfer[] @relation("to_branch_stock_transfers")
+  print_templates      PrintTemplate[]
+  branch_assignments   BranchAssignment[]
+
+  @@index([company_id])
+  @@map("branches")
+}
+
+model Currency {
+  id            String    @id @default(uuid())
+  code          String
+  name          String
+  symbol        String
+  exchange_rate Int
+  is_default    Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  sales          Sale[]
+  sale_payments  SalePayment[]
+  purchases      Purchase[]
+  expenses       Expense[]
+  cash_registers CashRegister[]
+  safe_boxes     SafeBox[]
+  safe_movements SafeMovement[]
+
+  @@index([code])
+  @@map("currencies")
+}
+
+model Setting {
+  id         String    @id @default(uuid())
+  branch_id  String?
+  key        String
+  value      String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  branch Branch? @relation(fields: [branch_id], references: [id])
+
+  @@index([branch_id, key])
+  @@map("settings")
+}
+
+model NumberSequence {
+  id          String   @id @default(uuid())
+  branch_id   String
+  type        String   // sale, purchase, sale_return, purchase_return, expense
+  prefix      String   @default("INV")
+  next_number Int      @default(1)
+  pad_length  Int      @default(6)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@unique([branch_id, type])
+  @@map("number_sequences")
+}
+
+// ─── Auth ────────────────────────────────────────────
+
+enum UserRole {
+  super_admin
+  admin
+  manager
+  cashier
+  accountant
+  inventory_manager
+  auditor
+}
+
+model User {
+  id            String    @id @default(uuid())
+  branch_id     String
+  name          String
+  username      String    @unique
+  password_hash String
+  role          UserRole
+  is_active     Boolean   @default(true)
+  role_id       String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  branch        Branch            @relation(fields: [branch_id], references: [id])
+  role_ref      Role?             @relation(fields: [role_id], references: [id])
+  shifts        Shift[]
+  sales         Sale[]
+  purchases     Purchase[]
+  expenses      Expense[]
+  stock_counts  StockCount[]
+  activity_logs ActivityLog[]
+  branch_assignments BranchAssignment[]
+  user_permissions    UserPermission[]
+
+  @@index([branch_id])
+  @@index([role])
+  @@index([is_active])
+  @@map("users")
+}
+
+model Shift {
+  id              String    @id @default(uuid())
+  branch_id       String
+  user_id         String
+  opened_at       DateTime  @default(now())
+  closed_at       DateTime?
+  opening_balance Int
+  closing_balance Int?
+  expected_balance Int?
+  difference      Int?
+  status          String    @default("open")  // open, closed, approved
+  approved_by     String?
+  approved_at     DateTime?
+  notes           String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime?
+
+  branch Branch @relation(fields: [branch_id], references: [id])
+  user   User   @relation(fields: [user_id], references: [id])
+  sales  Sale[]
+
+  @@index([branch_id])
+  @@index([user_id])
+  @@index([status])
+  @@map("shifts")
+}
+
+// ─── Products ────────────────────────────────────────
+
+model Category {
+  id         String    @id @default(uuid())
+  name       String
+  name_ar    String
+  parent_id  String?
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  parent   Category?  @relation("CategoryParent", fields: [parent_id], references: [id])
+  children Category[] @relation("CategoryParent")
+  products Product[]
+
+  @@index([parent_id])
+  @@map("categories")
+}
+
+model Unit {
+  id         String    @id @default(uuid())
+  name       String
+  name_ar    String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  products       Product[]
+  product_units  ProductUnit[]
+  purchase_items PurchaseItem[]
+  sale_items     SaleItem[]
+
+  @@map("units")
+}
+
+model ProductUnit {
+  id                String    @id @default(uuid())
+  product_id        String
+  unit_id           String
+  conversion_factor Int       @default(1)
+  purchase_price    Int?
+  selling_price     Int?
+  is_base           Boolean   @default(false)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  product Product @relation(fields: [product_id], references: [id])
+  unit    Unit    @relation(fields: [unit_id], references: [id])
+
+  @@unique([product_id, unit_id])
+  @@map("product_units")
+}
+
+model Brand {
+  id         String    @id @default(uuid())
+  name       String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id            String    @id @default(uuid())
+  branch_id     String
+  category_id   String?
+  unit_id       String
+  brand_id      String?
+  name          String
+  name_ar       String
+  barcode       String?   @unique
+  sku           String?
+  cost_price    Int
+  selling_price Int
+  min_stock     Int       @default(0)
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+
+  branch             Branch             @relation(fields: [branch_id], references: [id])
+  category           Category?          @relation(fields: [category_id], references: [id])
+  unit               Unit               @relation(fields: [unit_id], references: [id])
+  brand              Brand?             @relation(fields: [brand_id], references: [id])
+  product_units      ProductUnit[]
+  stock_movements    StockMovement[]
+  sale_items         SaleItem[]
+  purchase_items     PurchaseItem[]
+  stock_count_items  StockCountItem[]
+  stock_transfer_items StockTransferItem[]
+  inventory_balances InventoryBalance[]
+
+  @@index([branch_id])
+  @@index([category_id])
+  @@index([barcode])
+  @@index([is_active])
+  @@map("products")
+}
+
+// ─── Inventory ───────────────────────────────────────
+
+model Warehouse {
+  id         String    @id @default(uuid())
+  branch_id  String
+  name       String
+  name_ar    String
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  branch             Branch             @relation(fields: [branch_id], references: [id])
+  inventory_balances InventoryBalance[]
+  stock_movements    StockMovement[]
+  stock_counts       StockCount[]
+
+  @@map("warehouses")
+}
+
+model InventoryBalance {
+  id           String   @id @default(uuid())
+  branch_id    String
+  warehouse_id String?
+  product_id   String
+  quantity     Int      @default(0)
+  updated_at   DateTime @updatedAt
+
+  branch    Branch     @relation(fields: [branch_id], references: [id])
+  warehouse Warehouse? @relation(fields: [warehouse_id], references: [id])
+  product   Product    @relation(fields: [product_id], references: [id])
+
+  @@unique([branch_id, warehouse_id, product_id])
+  @@index([branch_id, product_id])
+  @@index([warehouse_id])
+  @@index([quantity])
+  @@map("inventory_balances")
+}
+
+enum StockMovementType {
+  purchase
+  sale
+  return_sale
+  return_purchase
+  adjustment
+  transfer
+}
+
+model StockMovement {
+  id             String            @id @default(uuid())
+  branch_id      String
+  warehouse_id   String?
+  product_id     String
+  type           StockMovementType
+  quantity       Int
+  reference_id   String?
+  reference_type String?
+  notes          String?
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+  deleted_at     DateTime?
+
+  branch    Branch     @relation(fields: [branch_id], references: [id])
+  warehouse Warehouse? @relation(fields: [warehouse_id], references: [id])
+  product   Product    @relation(fields: [product_id], references: [id])
+
+  @@index([branch_id, product_id, deleted_at])
+  @@index([product_id, branch_id, created_at])
+  @@index([reference_id, reference_type])
+  @@index([type])
+  @@map("stock_movements")
+}
+
+model StockCount {
+  id           String    @id @default(uuid())
+  branch_id    String
+  warehouse_id String?
+  user_id      String
+  counted_at   DateTime  @default(now())
+  notes        String?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  deleted_at   DateTime?
+
+  branch    Branch           @relation(fields: [branch_id], references: [id])
+  warehouse Warehouse?       @relation(fields: [warehouse_id], references: [id])
+  user      User             @relation(fields: [user_id], references: [id])
+  items     StockCountItem[]
+
+  @@index([branch_id])
+  @@index([user_id])
+  @@map("stock_counts")
+}
+
+model StockCountItem {
+  id             String    @id @default(uuid())
+  stock_count_id String
+  product_id     String
+  expected_qty   Int
+  actual_qty     Int
+  difference     Int
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  stock_count StockCount @relation(fields: [stock_count_id], references: [id])
+  product     Product    @relation(fields: [product_id], references: [id])
+
+  @@index([stock_count_id])
+  @@index([product_id])
+  @@map("stock_count_items")
+}
+
+// ─── Stock Transfers ────────────────────────────────
+
+model StockTransfer {
+  id              String    @id @default(uuid())
+  from_branch_id  String
+  to_branch_id    String
+  from_warehouse_id String?
+  to_warehouse_id   String?
+  status          String    @default("pending")  // pending, completed, cancelled
+  notes           String?
+  created_by      String
+  approved_by     String?
+  approved_at     DateTime?
+  completed_by    String?
+  completed_at    DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  deleted_at      DateTime?
+
+  from_branch  Branch  @relation("from_branch_stock_transfers", fields: [from_branch_id], references: [id])
+  to_branch    Branch  @relation("to_branch_stock_transfers", fields: [to_branch_id], references: [id])
+  items        StockTransferItem[]
+
+  @@index([from_branch_id])
+  @@index([to_branch_id])
+  @@index([status])
+  @@map("stock_transfers")
+}
+
+model StockTransferItem {
+  id                String    @id @default(uuid())
+  stock_transfer_id String
+  product_id        String
+  quantity          Int
+  cost_price        Int
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  stock_transfer StockTransfer @relation(fields: [stock_transfer_id], references: [id])
+  product        Product       @relation(fields: [product_id], references: [id])
+
+  @@index([stock_transfer_id])
+  @@index([product_id])
+  @@map("stock_transfer_items")
+}
+
+// ─── Payment Schedules ──────────────────────────────
+
+model PaymentSchedule {
+  id          String    @id @default(uuid())
+  sale_id     String
+  amount      Int
+  paid_amount Int       @default(0)
+  due_date    DateTime?
+  status      String    @default("pending")  // pending, partial, paid, cancelled
+  notes       String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  sale Sale @relation(fields: [sale_id], references: [id])
+
+  @@index([sale_id])
+  @@index([status])
+  @@index([due_date])
+  @@index([status, due_date])
+  @@map("payment_schedules")
+}
+
+// ─── Sales ───────────────────────────────────────────
+
+model CustomerGroup {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  parent_id   String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  parent    CustomerGroup?  @relation("CustomerGroupParent", fields: [parent_id], references: [id])
+  children  CustomerGroup[] @relation("CustomerGroupParent")
+  customers Customer[]
+
+  @@index([parent_id])
+  @@map("customer_groups")
+}
+
+model Customer {
+  id                String    @id @default(uuid())
+  branch_id         String
+  customer_group_id String?
+  name              String
+  phone             String?
+  email             String?
+  tax_number        String?
+  address           String?
+  balance           Int       @default(0)
+  credit_limit      Int       @default(0)
+  opening_balance   Int       @default(0)
+  opening_balance_date DateTime?
+  notes             String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  deleted_at        DateTime?
+
+  branch Branch         @relation(fields: [branch_id], references: [id])
+  group  CustomerGroup? @relation(fields: [customer_group_id], references: [id])
+  sales  Sale[]
+
+  @@index([branch_id])
+  @@index([name])
+  @@map("customers")
+}
+
+enum SaleStatus {
+  draft
+  completed
+  returned
+  cancelled
+}
+
+model Sale {
+  id              String     @id @default(uuid())
+  branch_id       String
+  shift_id        String
+  customer_id     String?
+  user_id         String
+  invoice_number  String     @unique
+  status          SaleStatus @default(draft)
+  subtotal        Int
+  discount_amount Int        @default(0)
+  tax_amount      Int        @default(0)
+  total           Int
+  paid_amount     Int        @default(0)
+  currency_id     String
+  exchange_rate   Int
+  notes           String?
+  held_at         DateTime?
+  cancellation_reason   String?
+  cancellation_note     String?
+  cancelled_by          String?
+  cancelled_at          DateTime?
+  cancellation_reviewed_by String?
+  cancellation_reviewed_at DateTime?
+  cancellation_status      String?
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  deleted_at      DateTime?
+
+  branch   Branch        @relation(fields: [branch_id], references: [id])
+  shift    Shift         @relation(fields: [shift_id], references: [id])
+  customer Customer?     @relation(fields: [customer_id], references: [id])
+  user     User          @relation(fields: [user_id], references: [id])
+  currency Currency      @relation(fields: [currency_id], references: [id])
+  items    SaleItem[]
+  payments SalePayment[]
+  payment_schedules PaymentSchedule[]
+
+  @@index([branch_id, status, created_at, deleted_at])
+  @@index([branch_id, created_at])
+  @@index([created_at])
+  @@index([status, created_at])
+  @@index([customer_id, status])
+  @@index([user_id, status, created_at])
+  @@index([shift_id])
+  @@map("sales")
+}
+
+model SaleItem {
+  id         String    @id @default(uuid())
+  sale_id    String
+  product_id String
+  unit_id    String?
+  quantity   Int
+  unit_price Int
+  discount   Int       @default(0)
+  total      Int
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  sale    Sale    @relation(fields: [sale_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+  unit    Unit?   @relation(fields: [unit_id], references: [id])
+
+  @@index([sale_id])
+  @@index([product_id])
+  @@index([sale_id, product_id])
+  @@index([unit_id])
+  @@index([deleted_at])
+  @@map("sale_items")
+}
+
+enum PaymentMethod {
+  cash
+  card
+  transfer
+  credit
+}
+
+model SalePayment {
+  id            String        @id @default(uuid())
+  sale_id       String
+  method        PaymentMethod
+  amount        Int
+  currency_id   String
+  exchange_rate Int
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  deleted_at    DateTime?
+
+  sale     Sale     @relation(fields: [sale_id], references: [id])
+  currency Currency @relation(fields: [currency_id], references: [id])
+
+  @@index([sale_id])
+  @@map("sale_payments")
+}
+
+// ─── Purchases ───────────────────────────────────────
+
+model SupplierCategory {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  suppliers Supplier[]
+
+  @@map("supplier_categories")
+}
+
+model Supplier {
+  id                   String    @id @default(uuid())
+  branch_id            String
+  supplier_category_id String?
+  name                 String
+  phone                String?
+  email                String?
+  tax_number           String?
+  address              String?
+  balance              Int       @default(0)
+  opening_balance      Int       @default(0)
+  opening_balance_date DateTime?
+  notes                String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+  deleted_at           DateTime?
+
+  branch    Branch            @relation(fields: [branch_id], references: [id])
+  category  SupplierCategory? @relation(fields: [supplier_category_id], references: [id])
+  purchases Purchase[]
+
+  @@index([branch_id])
+  @@map("suppliers")
+}
+
+enum PurchaseStatus {
+  draft
+  completed
+  returned
+  cancelled
+}
+
+model Purchase {
+  id              String         @id @default(uuid())
+  branch_id       String
+  supplier_id     String?
+  user_id         String
+  invoice_number  String?
+  status          PurchaseStatus @default(draft)
+  subtotal        Int
+  discount_amount Int            @default(0)
+  total           Int
+  paid_amount     Int            @default(0)
+  currency_id     String
+  exchange_rate   Int
+  notes           String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  deleted_at      DateTime?
+
+  branch   Branch         @relation(fields: [branch_id], references: [id])
+  supplier Supplier?      @relation(fields: [supplier_id], references: [id])
+  user     User           @relation(fields: [user_id], references: [id])
+  currency Currency       @relation(fields: [currency_id], references: [id])
+  items    PurchaseItem[]
+
+  @@index([branch_id, status, created_at, deleted_at])
+  @@index([supplier_id, status])
+  @@index([user_id, status])
+  @@index([created_at])
+  @@index([status, created_at])
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id          String    @id @default(uuid())
+  purchase_id String
+  product_id  String
+  unit_id     String?
+  quantity    Int
+  unit_price  Int
+  total       Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  purchase Purchase @relation(fields: [purchase_id], references: [id])
+  product  Product  @relation(fields: [product_id], references: [id])
+  unit     Unit?    @relation(fields: [unit_id], references: [id])
+
+  @@index([purchase_id])
+  @@index([product_id])
+  @@index([unit_id])
+  @@map("purchase_items")
+}
+
+// ─── Finance ─────────────────────────────────────────
+
+model SafeBox {
+  id          String    @id @default(uuid())
+  branch_id   String
+  name        String
+  name_ar     String
+  balance     Int       @default(0)
+  currency_id String
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  branch   Branch         @relation(fields: [branch_id], references: [id])
+  currency Currency       @relation(fields: [currency_id], references: [id])
+  movements SafeMovement[]
+
+  @@index([branch_id])
+  @@map("safe_boxes")
+}
+
+model SafeMovement {
+  id          String   @id @default(uuid())
+  safe_id     String
+  type        String   // cash_in, cash_out, transfer_from_register, transfer_to_register
+  amount      Int
+  currency_id String
+  reference_type  String?  // shift, cash_register, expense
+  reference_id    String?
+  notes       String?
+  created_by  String
+  created_at  DateTime @default(now())
+  deleted_at  DateTime?
+
+  safe     SafeBox  @relation(fields: [safe_id], references: [id])
+  currency Currency @relation(fields: [currency_id], references: [id])
+
+  @@index([safe_id])
+  @@index([type])
+  @@map("safe_movements")
+}
+
+model CashRegister {
+  id          String    @id @default(uuid())
+  branch_id   String
+  name        String
+  balance     Int       @default(0)
+  currency_id String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  branch   Branch   @relation(fields: [branch_id], references: [id])
+  currency Currency @relation(fields: [currency_id], references: [id])
+
+  @@index([branch_id])
+  @@map("cash_registers")
+}
+
+model ExpenseCategory {
+  id          String    @id @default(uuid())
+  branch_id   String?
+  name        String
+  name_ar     String
+  description String?
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+
+  branch   Branch?  @relation(fields: [branch_id], references: [id])
+  expenses Expense[]
+
+  @@index([branch_id])
+  @@map("expense_categories")
+}
+
+model Expense {
+  id             String    @id @default(uuid())
+  branch_id      String
+  user_id        String
+  category_id    String?
+  category       String
+  amount         Int
+  currency_id    String
+  exchange_rate  Int
+  description    String?
+  expense_date   DateTime
+  status         String    @default("pending")  // pending, approved, rejected
+  approved_by    String?
+  approved_at    DateTime?
+  rejection_reason String?
+  payment_source String    @default("direct")  // safe, cash_register, direct
+  source_id      String?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  branch       Branch          @relation(fields: [branch_id], references: [id])
+  user         User            @relation(fields: [user_id], references: [id])
+  currency     Currency        @relation(fields: [currency_id], references: [id])
+  expense_category ExpenseCategory? @relation(fields: [category_id], references: [id])
+
+  @@index([branch_id, status, expense_date, deleted_at])
+  @@index([category_id])
+  @@index([expense_date])
+  @@index([status, expense_date])
+  @@map("expenses")
+}
+
+// ─── Audit ────────────────────────────────────────────
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  branch_id   String?
+  user_id     String?
+  action      String
+  entity      String
+  entity_id   String?
+  metadata    Json?
+  ip_address  String?
+  created_at  DateTime @default(now())
+
+  branch Branch? @relation(fields: [branch_id], references: [id])
+  user   User?   @relation(fields: [user_id], references: [id])
+
+  @@index([branch_id, entity, entity_id, created_at])
+  @@index([user_id, created_at])
+  @@map("activity_logs")
+}
+
+// ─── Print Templates ────────────────────────────────
+
+model PrintTemplate {
+  id         String    @id @default(uuid())
+  branch_id  String?
+  type       String    // "thermal" | "a4"
+  name       String
+  header     String?
+  body       String?
+  footer     String?
+  css        String?
+  is_default Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  branch Branch? @relation(fields: [branch_id], references: [id])
+
+  @@index([branch_id, type])
+  @@index([is_default])
+  @@map("print_templates")
+}
+
+// ─── RBAC ────────────────────────────────────────────
+
+model Role {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  label       String
+  description String?
+  is_system   Boolean   @default(false)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  users           User[]
+  role_permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  label       String
+  group       String?
+  description String?
+  created_at  DateTime @default(now())
+
+  role_permissions RolePermission[]
+  user_permissions  UserPermission[]
+
+  @@index([group])
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       String
+  permission_id String
+
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+model BranchAssignment {
+  id         String   @id @default(uuid())
+  user_id    String
+  branch_id  String
+  is_default Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user   User   @relation(fields: [user_id], references: [id])
+  branch Branch @relation(fields: [branch_id], references: [id])
+
+  @@unique([user_id, branch_id])
+  @@index([user_id])
+  @@index([branch_id])
+  @@map("branch_assignments")
+}
+
+model UserPermission {
+  id            String   @id @default(uuid())
+  user_id       String
+  permission_id String
+  granted       Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  user       User       @relation(fields: [user_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@unique([user_id, permission_id])
+  @@index([user_id])
+  @@map("user_permissions")
+}
