@@ -6,7 +6,7 @@ import { UUID, authHeaders, testAdminUser, testManagerUser, testCashierUser } fr
 
 const { hasPermission } = await import('../../src/services/permission.service.js');
 
-const SUPER = { userId: UUID.admin, role: 'super_admin', branchId: UUID.branch };
+const SUPER = { userId: UUID.superAdmin, role: 'super_admin', branchId: UUID.branch };
 
 beforeEach(() => {
   hasPermission.mockReset();
