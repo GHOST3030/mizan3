@@ -14,7 +14,8 @@
     "db:seed": "node prisma/seed.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:api": "vitest run tests/api"
+    "test:api": "vitest run tests/api",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
