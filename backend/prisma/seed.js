@@ -449,6 +449,27 @@ async function main() {
   }
   console.log(' حركات المخزون:', moveIdx);
 
+  // ─── Expense Categories ─────────────────────
+  const expenseCatsData = [
+    { id: 'cat-rent', name: 'Rent', name_ar: 'إيجار', description: 'إيجار المحل أو المكاتب' },
+    { id: 'cat-electricity', name: 'Electricity', name_ar: 'كهرباء', description: 'فواتير الكهرباء' },
+    { id: 'cat-water', name: 'Water', name_ar: 'مياه', description: 'فواتير المياه' },
+    { id: 'cat-salaries', name: 'Salaries', name_ar: 'رواتب', description: 'رواتب الموظفين' },
+    { id: 'cat-maintenance', name: 'Maintenance', name_ar: 'صيانة', description: 'صيانة المعدات والمباني' },
+    { id: 'cat-transport', name: 'Transportation', name_ar: 'مواصلات', description: 'مصاريف النقل والمواصلات' },
+    { id: 'cat-supplies', name: 'Office Supplies', name_ar: 'قرطاسية', description: 'مستلزمات مكتبية' },
+    { id: 'cat-marketing', name: 'Marketing', name_ar: 'تسويق', description: 'مصاريف دعائية وإعلانية' },
+    { id: 'cat-other', name: 'Other', name_ar: 'أخرى', description: 'مصروفات متنوعة' },
+  ];
+  for (const ec of expenseCatsData) {
+    await prisma.expenseCategory.upsert({
+      where: { id: ec.id },
+      update: {},
+      create: { ...ec, branch_id: null },
+    });
+  }
+  console.log(` تصنيفات المصروفات: ${expenseCatsData.length} تصنيف`);
+
   // ─── RBAC: Roles ────────────────────────────
   const roleDefs = [
     { name: 'super_admin', label: 'المشرف العام', is_system: true },

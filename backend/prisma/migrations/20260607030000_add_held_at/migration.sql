@@ -1,1 +1,0 @@
-ALTER TABLE "sales" ADD COLUMN "held_at" TIMESTAMP(3);
