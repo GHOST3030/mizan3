@@ -1,5 +1,6 @@
-import { mockPrisma, testAdminUser, testManagerUser, testAccountantUser, testCashierUser } from './setup.js';
+import { mockPrisma, setupUserMock } from './setup.js';
 import { flush as cacheFlush } from '../src/lib/cache.js';
+import { clearRoleCache } from '../src/middleware/authenticate.js';
 
 export const resetMocks = () => {
   const models = [
@@ -24,4 +25,6 @@ export const resetMocks = () => {
   mockPrisma.$transaction.mockReset();
   mockPrisma.$transaction.mockImplementation((fn) => fn(mockPrisma));
   cacheFlush();
+  clearRoleCache();
+  setupUserMock();
 };

@@ -8,6 +8,7 @@ process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 process.env.DIRECT_URL = 'postgresql://test:test@localhost:5432/test';
 
 export const UUID = {
+  superAdmin: '00000000-0000-4000-a000-000000000000',
   admin: '00000000-0000-4000-a000-000000000001',
   manager: '00000000-0000-4000-a000-000000000002',
   accountant: '00000000-0000-4000-a000-000000000003',
@@ -15,6 +16,7 @@ export const UUID = {
   branch: '00000000-0000-4000-a000-000000000010',
 };
 
+export const testSuperAdminUser = { userId: UUID.superAdmin, role: 'super_admin', branchId: UUID.branch };
 export const testAdminUser = { userId: UUID.admin, role: 'admin', branchId: UUID.branch };
 export const testManagerUser = { userId: UUID.manager, role: 'manager', branchId: UUID.branch };
 export const testAccountantUser = { userId: UUID.accountant, role: 'accountant', branchId: UUID.branch };
@@ -102,6 +104,24 @@ const createMockPrisma = () => {
 };
 
 export const mockPrisma = createMockPrisma();
+
+const userRoleMap = {
+  [UUID.superAdmin]: 'super_admin',
+  [UUID.admin]: 'admin',
+  [UUID.manager]: 'manager',
+  [UUID.accountant]: 'accountant',
+  [UUID.cashier]: 'cashier',
+};
+
+export const setupUserMock = () => {
+  mockPrisma.user.findUnique.mockImplementation(({ where }) => {
+    const role = userRoleMap[where?.id];
+    if (role) return Promise.resolve({ role });
+    return Promise.resolve(null);
+  });
+};
+
+setupUserMock();
 
 vi.mock('../src/lib/prisma.js', () => ({
   prisma: mockPrisma,

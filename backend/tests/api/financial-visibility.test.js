@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import app from '../../src/app.js';
-import { mockPrisma, authHeaders, testAdminUser, testManagerUser, testAccountantUser, testCashierUser } from '../setup.js';
+import { mockPrisma, authHeaders, UUID as setupUUID, testAdminUser, testManagerUser, testAccountantUser, testCashierUser } from '../setup.js';
 import { resetMocks } from '../helpers.js';
 
 const { hasPermission } = await import('../../src/services/permission.service.js');
@@ -13,7 +13,7 @@ const UUID = {
   safe1: '00000000-0000-4000-a000-000000000030',
 };
 
-const SUPER = { userId: '00000000-0000-4000-a000-000000000001', role: 'super_admin', branchId: UUID.branchA };
+const SUPER = { userId: setupUUID.superAdmin, role: 'super_admin', branchId: UUID.branchA };
 
 const otherBranchManager = { userId: '00000000-0000-4000-a000-000000000777', role: 'manager', branchId: UUID.branchB };
 
