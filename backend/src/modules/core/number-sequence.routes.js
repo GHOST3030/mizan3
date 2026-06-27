@@ -11,8 +11,8 @@ router.use(authenticate, branchScope);
 
 router.post('/reseed', authorize('admin'), requirePermission('admin:manage_users'), validate(reseedSequenceSchema), async (req, res, next) => {
   try {
-    const next = await reseedSequence(req.body.branch_id, req.body.type);
-    res.json({ message: 'تمت إعادة تعيين التسلسل', next_number: next });
+    const nextNumber = await reseedSequence(req.body.branch_id, req.body.type);
+    res.json({ message: 'تمت إعادة تعيين التسلسل', next_number: nextNumber });
   } catch (err) { next(err); }
 });
 
