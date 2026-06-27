@@ -33,7 +33,7 @@ export default function StockTransfersPage() {
 
   const { data: branches } = useQuery({
     queryKey: ['branches'],
-    queryFn: async () => { const res = await client.get('/branches'); return res.data; },
+    queryFn: async () => { const res = await client.get('/core/branches'); return res.data; },
   });
 
   return (
