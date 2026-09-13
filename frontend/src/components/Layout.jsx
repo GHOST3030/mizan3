@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import client from '../api/client';
-import { ShoppingCart, Package, UserCog, ShieldCheck, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Package, UserCog, ShieldCheck, BarChart3, LayoutDashboard, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react';
 import { ToastContainer } from './ui';
 const roleLabels = {
   super_admin: 'المشرف العام',
@@ -29,6 +29,8 @@ const inventoryItems = [];
 const financeItems = [];
 
 const managementItems = [
+  { to: '/executive-dashboard', label: 'لوحة القيادة', icon: LayoutDashboard, roles: ADM_MGR },
+  { to: '/reports', label: 'التقارير', icon: BarChart3, roles: ADM_MGR },
   { to: '/products', label: 'المنتجات', icon: Package, roles: ADM_MGR },
   { to: '/users', label: 'المستخدمين', icon: UserCog, roles: ADMIN_ONLY },
   { to: '/admin/roles', label: 'الأدوار والصلاحيات', icon: ShieldCheck, roles: ADMIN_ONLY },
