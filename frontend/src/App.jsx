@@ -5,7 +5,6 @@ import { useAuthStore } from './store/authStore';
 import Layout from './components/Layout';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const POSPage = lazy(() => import('./pages/pos/POSPage'));
 const ProductsPage = lazy(() => import('./pages/products/ProductsPage'));
 const CustomersPage = lazy(() => import('./pages/customers/CustomersPage'));
