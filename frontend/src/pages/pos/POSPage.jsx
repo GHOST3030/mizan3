@@ -75,6 +75,22 @@ export default function POSPage() {
     },
   });
 
+  const openShiftMutation = useMutation({
+    mutationFn: (opening_balance) => client.post('/finance/shifts/open', {
+      branch_id: branchId,
+      user_id: user?.id,
+      opening_balance,
+    }),
+    onSuccess: () => queryClient.invalidateQueries(['active-shift']),
+  });
+
+  const handleOpenShift = () => {
+    const input = window.prompt('رصيد افتتاح الوردية:', '0');
+    if (input === null) return;
+    const opening_balance = parseFloat(input) || 0;
+    openShiftMutation.mutate(opening_balance);
+  };
+
   const cartRef = useRef(cart);
   const shiftRef = useRef(shiftData);
 
@@ -405,9 +421,13 @@ export default function POSPage() {
             </div>
           </div>
           {!shiftData && (
-            <div className="flex items-center gap-1.5 mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded dark:text-amber-400 dark:bg-amber-900/20">
-              <span>⚠️</span>
-              <span>الوردية مغلقة</span>
+            <div className="flex items-center justify-between gap-1.5 mt-2 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded dark:text-amber-400 dark:bg-amber-900/20">
+              <span className="flex items-center gap-1.5"><span>⚠️</span><span>الوردية مغلقة</span></span>
+              <Can permission={PERMISSIONS.SHIFT_OPEN}>
+                <Button size="sm" variant="success" onClick={handleOpenShift} loading={openShiftMutation.isPending}>
+                  فتح وردية
+                </Button>
+              </Can>
             </div>
           )}
         </div>
