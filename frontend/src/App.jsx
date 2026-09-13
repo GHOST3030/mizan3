@@ -121,7 +121,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
-              <Route path="/" element={<ProtectedRoute path="/"><DashboardPage /></ProtectedRoute>} />
+              <Route path="/" element={<ProtectedRoute path="/pos"><POSPage /></ProtectedRoute>} />
               <Route path="/pos" element={<ProtectedRoute path="/pos"><POSPage /></ProtectedRoute>} />
               <Route path="/products" element={<ProtectedRoute path="/products"><ProductsPage /></ProtectedRoute>} />
               <Route path="/customers" element={<ProtectedRoute path="/customers"><CustomersPage /></ProtectedRoute>} />

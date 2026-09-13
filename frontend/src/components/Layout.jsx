@@ -4,14 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import client from '../api/client';
-import {
-  LayoutDashboard, ShoppingCart, Package, Users, Truck,
-  FileText, ShoppingBag, Warehouse, Building2, ArrowLeftRight,
-  ClipboardList, Trash2, AlertTriangle, Wallet, Banknote,
-  ShieldCheck, ArrowRightLeft, Clock, Tags, FolderOpen, CircleDollarSign,
-  UserCog, Building, Settings, BarChart3, LogOut, ChevronLeft, Moon, Sun, Printer,
-  Plus,
-} from 'lucide-react';
+import { ShoppingCart, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react';
 import { ToastContainer } from './ui';
 const roleLabels = {
   super_admin: 'المشرف العام',
@@ -24,51 +17,16 @@ const roleLabels = {
 };
 
 const ALL = ['super_admin', 'admin', 'manager', 'cashier', 'accountant', 'inventory_manager', 'auditor'];
-const ADM_MGR = ['super_admin', 'admin', 'manager'];
-const ADM_MGR_INV = ['super_admin', 'admin', 'manager', 'inventory_manager'];
-const ADM_MGR_CASH = ['super_admin', 'admin', 'manager', 'cashier'];
 
 const navItems = [
-  { to: '/', label: 'لوحة التحكم', icon: LayoutDashboard, roles: ALL },
-  { to: '/executive-dashboard', label: 'لوحة القيادة', icon: BarChart3, roles: ['super_admin', 'admin', 'manager', 'accountant', 'inventory_manager'] },
-  { to: '/pos', label: 'نقطة البيع', icon: ShoppingCart, roles: ALL },
-  { to: '/products', label: 'المنتجات', icon: Package, roles: ADM_MGR_INV },
-  { to: '/customers', label: 'العملاء', icon: Users, roles: ADM_MGR_CASH },
-  { to: '/suppliers', label: 'الموردين', icon: Truck, roles: ADM_MGR },
-  { to: '/sales', label: 'فواتير البيع', icon: FileText, roles: [...ADM_MGR_CASH, 'accountant'] },
-  { to: '/purchases', label: 'المشتريات', icon: ShoppingBag, roles: ADM_MGR },
+  { to: '/', label: 'نقطة البيع', icon: ShoppingCart, roles: ALL },
 ];
 
-const inventoryItems = [
-  { to: '/inventory', label: 'المخزون', icon: Warehouse, roles: ADM_MGR_INV },
-  { to: '/warehouses', label: 'المستودعات', icon: Building2, roles: ADM_MGR_INV },
-  { to: '/inventory/transfer', label: 'تحويل مخزون', icon: ArrowLeftRight, roles: ADM_MGR_INV },
-  { to: '/inventory/stock-count', label: 'جرد المخزون', icon: ClipboardList, roles: ADM_MGR_INV },
-  { to: '/inventory/wastage', label: 'تالف ومفقود', icon: Trash2, roles: ADM_MGR_INV },
-  { to: '/inventory/low-stock', label: 'مخزون منخفض', icon: AlertTriangle, roles: [...ADM_MGR_INV, 'accountant'] },
-];
+const inventoryItems = [];
 
-const ADM_MGR_ACCT = ['super_admin', 'admin', 'manager', 'accountant'];
+const financeItems = [];
 
-const financeItems = [
-  { to: '/expenses', label: 'المصروفات', icon: Wallet, roles: [...ADM_MGR_CASH, 'accountant'] },
-  { to: '/cash-registers', label: 'الصناديق', icon: Banknote, roles: ADM_MGR_ACCT },
-  { to: '/safe', label: 'الخزنة', icon: ShieldCheck, roles: ADM_MGR_ACCT },
-  { to: '/currency-exchange', label: 'تحويل عملات', icon: ArrowRightLeft, roles: ADM_MGR_ACCT },
-  { to: '/shifts', label: 'الورديات', icon: Clock, roles: ADM_MGR_CASH },
-];
-
-const managementItems = [
-  { to: '/customer-groups', label: 'مجموعات العملاء', icon: Tags, roles: ADM_MGR },
-  { to: '/supplier-categories', label: 'تصنيفات الموردين', icon: FolderOpen, roles: ADM_MGR },
-  { to: '/currencies', label: 'العملات', icon: CircleDollarSign, roles: ADM_MGR },
-  { to: '/users', label: 'المستخدمين', icon: UserCog, roles: ['super_admin', 'admin'] },
-  { to: '/company', label: 'الشركة والفروع', icon: Building, roles: ADM_MGR },
-  { to: '/settings', label: 'الإعدادات', icon: Settings, roles: ['super_admin', 'admin'] },
-  { to: '/print-templates', label: 'قوالب الطباعة', icon: Printer, roles: ADM_MGR },
-  { to: '/reports', label: 'التقارير', icon: BarChart3, roles: [...ADM_MGR, 'accountant'] },
-  { to: '/admin/roles', label: 'الأدوار والصلاحيات', icon: ShieldCheck, roles: ['super_admin', 'admin'] },
-];
+const managementItems = [];
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -179,57 +137,7 @@ export default function Layout() {
       <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
-      <QuickActions user={user} navigate={navigate} />
       <ToastContainer />
-    </div>
-  );
-}
-
-function QuickActions({ user, navigate }) {
-  const [open, setOpen] = useState(false);
-
-  const actions = [
-    { label: 'فاتورة بيع جديدة', icon: ShoppingCart, path: '/pos', color: 'bg-green-500', roles: ['super_admin', 'admin', 'manager', 'cashier'] },
-    { label: 'فاتورة شراء جديدة', icon: ShoppingBag, path: '/purchases', color: 'bg-blue-500', roles: ['super_admin', 'admin', 'manager'] },
-    { label: 'عميل جديد', icon: Users, path: '/customers', color: 'bg-purple-500', roles: ['super_admin', 'admin', 'manager', 'cashier'] },
-    { label: 'مورد جديد', icon: Truck, path: '/suppliers', color: 'bg-amber-500', roles: ['super_admin', 'admin', 'manager'] },
-    { label: 'مصروف جديد', icon: Wallet, path: '/expenses', color: 'bg-red-500', roles: ['super_admin', 'admin', 'manager', 'accountant'] },
-    { label: 'تحويل مخزون', icon: ArrowLeftRight, path: '/inventory/transfer', color: 'bg-indigo-500', roles: ['super_admin', 'admin', 'manager', 'inventory_manager'] },
-  ];
-
-  const filtered = actions.filter((a) => a.roles.includes(user?.role));
-
-  return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-end gap-3">
-      {open && (
-        <>
-          <div className="fixed inset-0" onClick={() => setOpen(false)} />
-          <div className="flex flex-col items-end gap-3 relative">
-            {filtered.map((action) => (
-              <button
-                key={action.path}
-                onClick={() => { navigate(action.path); setOpen(false); }}
-                className="flex items-center gap-2 bg-white dark:bg-gray-800 shadow-lg rounded-full pl-4 pr-3 py-2 hover:shadow-xl transition-all duration-200 group animate-fade-in"
-              >
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">{action.label}</span>
-                <span className={`w-9 h-9 ${action.color} rounded-full flex items-center justify-center`}>
-                  <action.icon className="w-4 h-4 text-white" />
-                </span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-      <button
-        onClick={() => setOpen(!open)}
-        className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 ${
-          open
-            ? 'bg-red-500 hover:bg-red-600 rotate-45'
-            : 'bg-blue-600 hover:bg-blue-700'
-        }`}
-      >
-        <Plus className="w-6 h-6 text-white" />
-      </button>
     </div>
   );
 }
