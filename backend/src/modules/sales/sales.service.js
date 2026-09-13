@@ -27,7 +27,8 @@ const generateInvoiceNumber = (branch_id) => getNextNumber(branch_id, 'sale');
 const getStockPolicy = async (branch_id) => {
   const val = await getCachedSetting('inventory.allow_negative_stock', branch_id);
   if (val !== null) return val;
-  return 'block';
+  // POS-only mode: sales are never blocked by stock levels.
+  return 'allow';
 };
 
 const checkStockAvailability = async (branch_id, items) => {
