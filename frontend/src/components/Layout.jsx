@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import client from '../api/client';
-import { ShoppingCart, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Package, UserCog, ShieldCheck, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react';
 import { ToastContainer } from './ui';
 const roleLabels = {
   super_admin: 'المشرف العام',
@@ -17,6 +17,8 @@ const roleLabels = {
 };
 
 const ALL = ['super_admin', 'admin', 'manager', 'cashier', 'accountant', 'inventory_manager', 'auditor'];
+const ADM_MGR = ['super_admin', 'admin', 'manager'];
+const ADMIN_ONLY = ['super_admin', 'admin'];
 
 const navItems = [
   { to: '/', label: 'نقطة البيع', icon: ShoppingCart, roles: ALL },
@@ -26,7 +28,11 @@ const inventoryItems = [];
 
 const financeItems = [];
 
-const managementItems = [];
+const managementItems = [
+  { to: '/products', label: 'المنتجات', icon: Package, roles: ADM_MGR },
+  { to: '/users', label: 'المستخدمين', icon: UserCog, roles: ADMIN_ONLY },
+  { to: '/admin/roles', label: 'الأدوار والصلاحيات', icon: ShieldCheck, roles: ADMIN_ONLY },
+];
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
